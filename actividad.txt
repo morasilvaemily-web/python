@@ -1,0 +1,18 @@
+Realizar la estructura de carpetas de un proyecto
+
+proyecto_clientes/          <-- Carpeta Raíz
+├── app/                  <-- Carpeta principal de la aplicación
+│   ├── __init__.py       <-- Archivo vacío para que Python reconozca el módulo
+│   ├── main.py           <-- Punto de entrada de la API
+│   ├── conexion_bd.py       <-- Configuración de la conexión a la base de datos
+│   ├── modelos/           <-- Carpeta para los modelos de Base de Datos (SQLAlchemy)
+│   │   ├── __init__.py
+│   │   └── clientes.py
+|   |   └── facturas.py
+│   ├── enrutador/          <-- Carpeta para los endpoints o rutas (APIRouter)
+│   │   ├── __init__.py
+│   │   └── clientes.py
+|   |   └── facturas.py
+├── venv                  <-- Entorno virtual
+├── requirements.txt      <-- Dependencias del proyecto, si es con uv pyproyect.toml
+└── README.md 
