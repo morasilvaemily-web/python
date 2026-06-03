@@ -25,6 +25,11 @@ project_clients/          <-- Carpeta Raíz
 
 03 junio
 
-4 . Enrutadores - Router
+4. Enrutadores - Router
     Crear los archivos de rutas para los modelos, y que se agrupen los endpoints
+
+5. Crear el archivo requirements.txt
+
+6. Editar el archivo de conexion_bd
+
 
