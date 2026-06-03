@@ -5,11 +5,7 @@ from .modelos.clientes import Cliente, ClienteCrear, ClienteEditar
 from .modelos.facturas import Factura, FacturaCrear
 from .modelos.transacciones import Transacciones, TransaccionesCrear
 from .enrutador import clientes
-
-# from .listas_app import lista_clientes
-lista_clientes = []
-lista_facturas = []
-lista_transacciones = []
+from .listas_app import lista_clientes, lista_facturas, lista_transacciones
 
 app = FastAPI()
 

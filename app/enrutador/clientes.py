@@ -1,13 +1,10 @@
 from fastapi import APIRouter
 from app.modelos.clientes import Cliente, ClienteCrear, ClienteEditar
+from ..listas_app import lista_clientes
 
 # por explicar la proxima clase
 # aca utilizaremos la sesion de bd
 
-# from ..listas_app import lista_clientes, lista_facturas, lista_transacciones
-lista_clientes = []
-lista_facturas = []
-lista_transacciones = []
 # crear manager de las api router, rutas de la api
 ruta_clientes = APIRouter()
 
