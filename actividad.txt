@@ -1,0 +1,33 @@
+1. Compartir le repositorio(con varios commit) en classroom 
+    NOTA: en el archivo README.md colocar sus datos personales y pasos que ha realizado.
+
+2. Realizar todo lo debido en el proyecto y con funcionamiento (CRUD). para transaacciones 
+sin la estructura(organizar en carpetas) de un proyecto.
+
+3. Realizar la estructura de carpetas de un proyecto
+
+project_clients/          <-- Carpeta Raíz
+├── app/                  <-- Carpeta principal de la aplicación
+│   ├── __init__.py       <-- Archivo vacío para que Python reconozca el módulo
+│   ├── main.py           <-- Punto de entrada de la API
+│   ├── conexion_bd.py       <-- Configuración de la conexión a la base de datos
+│   ├── modelos/           <-- Carpeta para los modelos de Base de Datos (SQLAlchemy)
+│   │   ├── __init__.py
+│   │   └── clientes.py
+|   |   └── facturas.py
+│   ├── enrutador/          <-- Carpeta para los endpoints o rutas (APIRouter)
+│   │   ├── __init__.py
+│   │   └── clientes.py
+|   |   └── facturas.py
+├── venv                  <-- Entorno virtual
+├── requirements.txt      <-- Dependencias del proyecto, si es con uv pyproyect.toml
+└── README.md 
+
+03 junio
+
+4. Enrutadores - Router
+    Crear los archivos de rutas para los modelos, y que se agrupen los endpoints
+
+5. Crear el archivo requirements.txt
+
+6. Editar el archivo de conexion_bd
