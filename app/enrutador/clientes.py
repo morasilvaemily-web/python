@@ -17,8 +17,7 @@ async def listar_clientes():
 
 @ruta_clientes.get("/clientes/{id}")
 async def listar_cliente(id: int):
-    # retornar mensajes claros al usuario, si no existe el cliente
-    # return [d for d in lista_clientes if d.id ==id]
+  
     for cliente in lista_clientes:
         if cliente.id == id:
             return cliente
