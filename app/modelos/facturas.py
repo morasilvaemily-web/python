@@ -1,36 +1,23 @@
-from pydantic import BaseModel, computed_field
-
-from .clientes import Cliente
-from .transacciones import Transacciones
+from pydantic import BaseModel
 
 
-class FacturaBase(BaseModel):
-    # atributos
-    fecha: str
-    cliente: Cliente
-    transacciones: list[Transacciones] = []
-
-    @computed_field
-    @property
-    def valor_total(self) -> float:
-        # consultar el id actual y poder filtra trasacciones
-        factura_id_actual = getattr(self, "id", None)
-        if factura_id_actual is None or not self.transacciones:
-            return 0.0
-        return sum(
-            t.cantidad * t.vr_unitario
-            for t in self.transacciones
-            if t.factura_id == factura_id_actual
-        )
+class Factura(BaseModel):
+    id: int
+    numero_factura: str
+    cliente_id: int
+    total: float
+    estado: str
 
 
-class FacturaCrear(FacturaBase):
-    pass
+class FacturaCrear(BaseModel):
+    numero_factura: str
+    cliente_id: int
+    total: float
+    estado: str
 
 
-class FacturaEditar(FacturaBase):
-    pass
-
-
-class Factura(FacturaBase):
-    id: int | None = None
+class FacturaEditar(BaseModel):
+    numero_factura: str
+    cliente_id: int
+    total: float
+    estado: str
