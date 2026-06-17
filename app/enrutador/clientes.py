@@ -1,52 +1,44 @@
-from fastapi import APIRouter
-from app.modelos.clientes import Cliente, ClienteCrear, ClienteEditar
-from ..listas_app import lista_clientes
+from fastapi import APIRouter, HTTPException
+from app.modelos.clientes import Cliente
+from app.listas_app import lista_clientes
 
-# por explicar la proxima clase
-# aca utilizaremos la sesion de bd
-
-# crear manager de las api router, rutas de la api
 ruta_clientes = APIRouter()
 
-
-@ruta_clientes.get("/clientes")
+# 1. Listar todos los clientes
+@ruta_clientes.get("/", summary="Listar Clientes", response_model=list[Cliente])
 async def listar_clientes():
-    # Creacion de sms mas adecuado al usuario
-    return {"Clientes": lista_clientes}
+    return lista_clientes
 
+# 2. Crear un nuevo cliente
+@ruta_clientes.post("/", summary="Crear Clientes", response_model=Cliente)
+async def crear_cliente(cliente: Cliente):
+    cliente.id = len(lista_clientes) + 1
+    lista_clientes.append(cliente)
+    return cliente
 
-@ruta_clientes.get("/clientes/{id}")
-async def listar_cliente(id: int):
-  
-    for cliente in lista_clientes:
-        if cliente.id == id:
-            return cliente
+# 3. EDITAR CLIENTE (Usando PATCH como te lo pide el profe)
+@ruta_clientes.patch("/{id}", summary="Editar Clientes", response_model=Cliente)
+async def editar_cliente(id: int, cliente_data: Cliente):
+    for c in lista_clientes:
+        if c.id == id:
+            c.nombre = cliente_data.nombre
+            c.email = cliente_data.email
+            return c
+    raise HTTPException(status_code=404, detail="Cliente no encontrado")
 
+# 4. Listar un único cliente por su ID
+@ruta_clientes.get("/{id}", summary="Listar Cliente", response_model=Cliente)
+async def listar_cliente_id(id: int):
+    for c in lista_clientes:
+        if c.id == id:
+            return c
+    raise HTTPException(status_code=404, detail="Cliente no encontrado")
 
-@ruta_clientes.post("/clientes", response_model=Cliente)
-async def crear_clientes(datos_cliente: ClienteCrear):
-    cliente_val = Cliente.model_validate(datos_cliente.model_dump())
-    cliente_val.id = len(lista_clientes) + 1  # id incremento
-    lista_clientes.append(cliente_val)
-    return cliente_val
-    # return {"Cliente": cliente_val}
-
-
-@ruta_clientes.put("/clientes/{id}")
-def editar_clientes(id: int, datos_cliente: ClienteEditar):
-    for i, obj_cliente in enumerate(lista_clientes):
-        if obj_cliente.id == id:
-            cliente_val = Cliente.model_validate(datos_cliente.model_dump())
-            cliente_val.id = id
-            lista_clientes[i] = cliente_val
-
-    return {
-        "mensaje": "Se actualizo el cliente satisfactoriamente.",
-        "Cliente": cliente_val,
-    }
-
-
-@ruta_clientes.put("/clientes/{id}")
-@ruta_clientes.delete("/clientes")
-def eliminar_clientes():
-    return {"Cliente": "Cliente eliminado"}
+# 5. Eliminar un cliente
+@ruta_clientes.delete("/{id}", summary="Eliminar Cliente")
+async def eliminar_cliente(id: int):
+    for idx, c in enumerate(lista_clientes):
+        if c.id == id:
+            lista_clientes.pop(idx)
+            return {"detail": "Cliente eliminado con éxito"}
+    raise HTTPException(status_code=404, detail="Cliente no encontrado")
