@@ -1,23 +1,31 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, computed_field
+from datetime import datetime
+
+from app.modelos.clientes import Cliente
+from app.modelos.transacciones import Transaccion
 
 
-class Factura(BaseModel):
-    id: int
-    numero_factura: str
-    cliente_id: int
-    total: float
-    estado: str
+class FacturaBase(BaseModel):
+    fecha: datetime
+    cliente: Cliente
+    transacciones: list[Transaccion] = []
+
+    @computed_field
+    @property
+    def valor_total(self) -> float:
+        return sum(
+            t.cantidad * t.vr_unitario
+            for t in self.transacciones
+        )
 
 
-class FacturaCrear(BaseModel):
-    numero_factura: str
-    cliente_id: int
-    total: float
-    estado: str
+class CrearFactura(FacturaBase):
+    pass
 
 
-class FacturaEditar(BaseModel):
-    numero_factura: str
-    cliente_id: int
-    total: float
-    estado: str
+class EditarFactura(FacturaBase):
+    pass
+
+
+class Factura(FacturaBase):
+    id: int | None = None
