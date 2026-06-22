@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 from app.listas import listas_clientes
-from app.model.cliente import *
+from app.modelos.clientes import *
 from ..conexion_bd import Sesion_dependencia
 from sqlmodel import select
 

@@ -1,6 +1,6 @@
 from app.modelos.clientes import *
 from app.modelos.transacciones import *
-from app.modelos.factura import *
+from app.modelos.facturas import *
 
 # ===================================
 # LISTAS SIMULANDO BASE DE DATOS
