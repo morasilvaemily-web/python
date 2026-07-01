@@ -1,6 +1,9 @@
 from fastapi import APIRouter, HTTPException
-from app.listas import listas_transacciones, listas_facturas
+from sqlmodel import select
+
+from ..conexion_bd import Sesion_dependencia
 from app.modelos.transacciones import *
+from app.modelos.facturas import Factura
 
 router = APIRouter(
     prefix="/transacciones",
@@ -11,36 +14,36 @@ router = APIRouter(
 # CRUD TRANSACCIONES
 # ===================================
 
-@router.get("/transacciones")
-async def listar_transacciones():
+@router.get("/")
+async def listar_transacciones(mi_sesion: Sesion_dependencia):
 
-    return listas_transacciones
+    transacciones = mi_sesion.exec(select(Transaccion)).all()
+    return transacciones
 
-
-@router.get("/transacciones/{id}")
-async def obtener_transaccion(id: int):
-
-    for transaccion in listas_transacciones:
-
-        if transaccion.id == id:
-            return transaccion
-
-    return {"error": "Transacción no encontrada"}
-
-
-@router.post("/transacciones/{factura_id}")
-async def crear_transaccion(
-    factura_id: int,
-    datos_transaccion: TransaccionCrear
+@router.get("/{id}")
+async def obtener_transaccion(
+    id: int,
+    mi_sesion: Sesion_dependencia
 ):
 
-    factura_encontrada = None
+    transaccion = mi_sesion.get(Transaccion, id)
 
-    for factura in listas_facturas:
+    if not transaccion:
+        raise HTTPException(
+            status_code=404,
+            detail="Transacción no encontrada"
+        )
 
-        if factura.id == factura_id:
-            factura_encontrada = factura
-            break
+    return transaccion
+    
+@router.post("/{factura_id}")
+async def crear_transaccion(
+    factura_id: int,
+    datos_transaccion: TransaccionCrear,
+    mi_sesion: Sesion_dependencia
+):
+
+    factura_encontrada = mi_sesion.get(Factura, factura_id)
 
     if not factura_encontrada:
 
@@ -49,69 +52,59 @@ async def crear_transaccion(
             detail="Factura no encontrada"
         )
 
-    transaccion_val = Transaccion.model_validate(
+    transaccion = Transaccion.model_validate(
         datos_transaccion.model_dump()
     )
 
-    transaccion_val.id = len(listas_transacciones) + 1
-    transaccion_val.factura_id = factura_id
+    transaccion.factura_id = factura_id
 
-    listas_transacciones.append(transaccion_val)
+    mi_sesion.add(transaccion)
+    mi_sesion.commit()
+    mi_sesion.refresh(transaccion)
 
-    factura_encontrada.transacciones.append(
-        transaccion_val
-    )
-
-    return {
-        "mensaje": "Transacción creada",
-        "transaccion": transaccion_val
-    }
-
-
-@router.put("/transacciones/{id}")
+    return transaccion
+@router.put("/{id}")
 async def editar_transaccion(
     id: int,
-    datos_transaccion: TransaccionEditar
+    datos_transaccion: TransaccionEditar,
+    mi_sesion: Sesion_dependencia
 ):
 
-    for i, transaccion in enumerate(
-        listas_transacciones
-    ):
+    transaccion = mi_sesion.get(Transaccion, id)
 
-        if transaccion.id == id:
+    if not transaccion:
 
-            transaccion_val = Transaccion.model_validate(
-                datos_transaccion.model_dump()
-            )
+        raise HTTPException(
+            status_code=404,
+            detail="Transacción no encontrada"
+        )
 
-            transaccion_val.id = id
-            transaccion_val.factura_id = (
-                transaccion.factura_id
-            )
+    datos = datos_transaccion.model_dump(exclude_unset=True)
 
-            listas_transacciones[i] = transaccion_val
+    transaccion.sqlmodel_update(datos)
 
-            return {
-                "mensaje": "Transacción actualizada",
-                "transaccion": transaccion_val
-            }
+    mi_sesion.add(transaccion)
+    mi_sesion.commit()
+    mi_sesion.refresh(transaccion)
 
-    return {"error": "Transacción no encontrada"}
+    return transaccion
 
+@router.delete("/{id}")
+async def eliminar_transaccion(
+    id: int,
+    mi_sesion: Sesion_dependencia
+):
 
-@router.delete("/transacciones/{id}")
-async def eliminar_transaccion(id: int):
+    transaccion = mi_sesion.get(Transaccion, id)
 
-    for i, transaccion in enumerate(
-        listas_transacciones
-    ):
+    if not transaccion:
 
-        if transaccion.id == id:
+        raise HTTPException(
+            status_code=404,
+            detail="Transacción no encontrada"
+        )
 
-            del listas_transacciones[i]
+    mi_sesion.delete(transaccion)
+    mi_sesion.commit()
 
-            return {
-                "mensaje": "Transacción eliminada"
-            }
-
-    return {"error": "Transacción no encontrada"}
+    return transaccion

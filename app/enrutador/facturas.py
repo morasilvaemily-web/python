@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException
-from app.listas import listas_facturas, listas_clientes
 from app.modelos.facturas import Factura, CrearFactura, EditarFactura
+from app.modelos.clientes import Cliente
+from ..conexion_bd import Sesion_dependencia
+from sqlmodel import select
 
 router = APIRouter(
     prefix="/facturas",
@@ -11,11 +13,11 @@ router = APIRouter(
 # ===================================
 # CRUD FACTURAS
 # ===================================
-
 @router.get("/", response_model=list[Factura])
-async def listar_facturas():
+async def listar_facturas(mi_sesion: Sesion_dependencia):
 
-    return listas_facturas
+    facturas = mi_sesion.exec(select(Factura)).all()
+    return facturas
 
 
 @router.get("/{id}")
@@ -32,32 +34,23 @@ async def obtener_factura(id: int):
 @router.post("/{cliente_id}")
 async def crear_factura(
     cliente_id: int,
-    datos_factura: CrearFactura
+    datos_factura: CrearFactura,
+    mi_sesion: Sesion_dependencia
 ):
 
-    cliente_encontrado = None
-
-    for cliente in listas_clientes:
-
-        if cliente.id == cliente_id:
-            cliente_encontrado = cliente
-            break
+    cliente_encontrado = mi_sesion.get(Cliente, cliente_id)
 
     if not cliente_encontrado:
-
         raise HTTPException(
             status_code=404,
             detail="Cliente no encontrado"
         )
 
-    factura_val = Factura.model_validate(
-        datos_factura.model_dump()
-    )
+    factura_val = Factura.model_validate(datos_factura.model_dump())
 
-    factura_val.id = len(listas_facturas) + 1
-    factura_val.cliente = cliente_encontrado
-
-    listas_facturas.append(factura_val)
+    mi_sesion.add(factura_val)
+    mi_sesion.commit()
+    mi_sesion.refresh(factura_val)
 
     return factura_val
 
